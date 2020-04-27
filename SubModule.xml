@@ -1,0 +1,25 @@
+﻿<Module>
+  <Name value="Complete All Main Story Quests"/>
+  <Id value="zenDzeeMods_CompleteAllMainQuests"/>
+  <Version value="v1.0.0"/>
+  <SingleplayerModule value="true"/>
+  <MultiplayerModule value="false"/>
+  <DependedModules>
+    <DependedModule Id="Native"/>
+    <DependedModule Id="SandBoxCore"/>
+    <DependedModule Id="Sandbox"/>
+    <DependedModule Id="StoryMode" />
+  </DependedModules>
+  <SubModules>
+    <SubModule>
+      <Name value="zenDzeeMods_CompleteAllMainQuests"/>
+      <DLLName value="zenDzeeMods_CompleteAllMainQuests.dll"/>
+      <SubModuleClassType value="zenDzeeMods_CompleteAllMainQuests.SubModule"/>
+      <Tags>
+        <Tag key="DedicatedServerType" value="none" />
+        <Tag key="IsNoRenderModeElement" value="false" />
+      </Tags>
+    </SubModule>
+  </SubModules>
+  <Xmls/>
+</Module>
