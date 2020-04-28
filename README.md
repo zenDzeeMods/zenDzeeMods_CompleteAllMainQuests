@@ -5,10 +5,6 @@ The mod automatically completes all main story quests and allows you to create y
 Open zenDzeeMods_CompleteAllMainQuests.csproj in the notepad and edit property `<MNB2DIR>` according to location of your game.
 Now you can open zenDzeeMods_CompleteAllMainQuests.sln in VisualStudio and build it.
 
-## How to build sources
-Open zenDzeeMods_CompleteAllMainQuests.csproj in the notepad and edit property `<MNB2DIR>` according to location of your game.
-Now you can open zenDzeeMods_CompleteAllMainQuests.sln in VisualStudio and build it.
-
 ## Mod features:
 1. Gracefully allows you to complete a tutorial or skip it. After that you can create your clan.
 2. Automatically completes all the main story quests by cancelling them. There a lot of quests, so it may take some time, about 1 in-game day.
