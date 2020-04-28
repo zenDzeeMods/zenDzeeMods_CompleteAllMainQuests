@@ -20,3 +20,8 @@ Preconditions: you should not be a vassal of a kingdom.
 2. Done.
 
 If you already had a settlement before installing the mod, simply enter and leave the settlement, and this will trigger an event to create a kingdom.
+
+## How to build sources
+Open zenDzeeMods_CompleteAllMainQuests.csproj in the notepad and edit property `<MNB2DIR>` according to location of your game.
+Now you can open zenDzeeMods_CompleteAllMainQuests.sln in VisualStudio and build it.
+
