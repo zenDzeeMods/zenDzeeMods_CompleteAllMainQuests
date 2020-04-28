@@ -106,12 +106,27 @@ namespace zenDzeeMods_CompleteAllMainQuests
 
         private static void MakeKingdom()
         {
-            Kingdom kingdom = MBObjectManager.Instance.CreateObject<Kingdom>("playerland_kingdom");
+            //Kingdom kingdom = MBObjectManager.Instance.CreateObject<Kingdom>("playerland_kingdom");
+
+            // some players reported that the game unable to load MBObjectManager.
+            // FIXME workaround.
+            Kingdom kingdom = new Kingdom();
+            kingdom.StringId = "playerland_kingdom";
+
             TextObject informalName = new TextObject("{CLAN_NAME}", null);
             informalName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
             TextObject kingdomName = new TextObject("Kingdom of the {CLAN_NAME}", null);
             kingdomName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
             kingdom.InitializeKingdom(kingdomName, informalName, Clan.PlayerClan.Culture, Clan.PlayerClan.Banner, Clan.PlayerClan.Color, Clan.PlayerClan.Color2, Clan.PlayerClan.InitialPosition);
+
+            foreach(Kingdom k in Kingdom.All)
+            {
+                if (k != null && k != kingdom && Clan.PlayerClan.IsAtWarWith(k))
+                {
+                    DeclareWarAction.Apply(k, kingdom);
+                }
+            }
+
             ChangeKingdomAction.ApplyByJoinToKingdom(Clan.PlayerClan, kingdom, true);
             kingdom.RulingClan = Clan.PlayerClan;
         }
