@@ -1,4 +1,6 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using System;
+using System.Reflection;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
@@ -78,7 +80,7 @@ namespace zenDzeeMods_CompleteAllMainQuests
         {
         }
 
-        private static void SettlementLeftAction(MobileParty party, Settlement settlement)
+        private void SettlementLeftAction(MobileParty party, Settlement settlement)
         {
             Clan clan = Clan.PlayerClan;
             if (Hero.MainHero == party.LeaderHero && clan != null && clan == settlement.OwnerClan && settlement.IsFortification)
@@ -91,7 +93,7 @@ namespace zenDzeeMods_CompleteAllMainQuests
             }
         }
 
-        private static void SettlementOwnerChangedAction(Settlement settlement, bool arg2, Hero arg3, Hero arg4, Hero arg5, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail arg6)
+        private void SettlementOwnerChangedAction(Settlement settlement, bool arg2, Hero arg3, Hero arg4, Hero arg5, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail arg6)
         {
             Clan clan = Clan.PlayerClan;
             if (clan != null && clan == settlement.OwnerClan && settlement.IsFortification)
@@ -104,14 +106,32 @@ namespace zenDzeeMods_CompleteAllMainQuests
             }
         }
 
-        private static void MakeKingdom()
+        private void MakeKingdom()
         {
-            //Kingdom kingdom = MBObjectManager.Instance.CreateObject<Kingdom>("playerland_kingdom");
-
-            // some players reported that the game unable to load MBObjectManager.
-            // FIXME workaround.
-            Kingdom kingdom = new Kingdom();
-            kingdom.StringId = "playerland_kingdom";
+            object objectManager = Game.Current.ObjectManager;
+            if (objectManager == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: MBObjectManager is null"));
+                return;
+            }
+            Type objectManagerType = objectManager.GetType();
+            if (objectManagerType == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: objectManagerType is null"));
+                return;
+            }
+            MethodInfo createObjectMethod = objectManagerType.GetMethod("CreateObject", new Type[2] { typeof(Type), typeof(string) });
+            if (createObjectMethod == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: createObjectMethod is null"));
+                return;
+            }
+            Kingdom kingdom = (Kingdom)createObjectMethod.Invoke(objectManager, new object[2] { typeof(Kingdom), "playerland_kingdom" });
+            if (kingdom == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: Object kingdom is null"));
+                return;
+            }
 
             TextObject informalName = new TextObject("{CLAN_NAME}", null);
             informalName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
