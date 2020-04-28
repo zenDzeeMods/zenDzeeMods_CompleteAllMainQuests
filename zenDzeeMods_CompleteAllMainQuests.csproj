@@ -1,7 +1,8 @@
 ﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Main Project Properties -->
   <PropertyGroup>
-    <MNB2DIR>C:\Games_steam\steam\steamapps\common\Mount &amp; Blade II Bannerlord - Beta</MNB2DIR>
+    <MNB2DIR>C:\Games_steam\steam\steamapps\common\Mount &amp; Blade II Bannerlord - Stable</MNB2DIR>
+    <MOD_OUT>.\Modules</MOD_OUT>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <PlatformTarget Condition=" '$(PlatformTarget)' == '' ">x64</PlatformTarget>
@@ -20,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>$(MNB2DIR)\Modules\zenDzeeMods_CompleteAllMainQuests\bin\Win64_Shipping_Client</OutputPath>
+    <OutputPath>$(MOD_OUT)\zenDzeeMods_CompleteAllMainQuests\bin\Win64_Shipping_Client</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>$(MNB2DIR)\Modules\zenDzeeMods_CompleteAllMainQuests\bin\Win64_Shipping_Client</OutputPath>
+    <OutputPath>$(MOD_OUT)\zenDzeeMods_CompleteAllMainQuests\bin\Win64_Shipping_Client</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -73,7 +74,7 @@
   </ItemGroup>
   <!-- Post-Build -->
   <PropertyGroup>
-    <PostBuildEvent>xcopy /d /y "$(MSBuildProjectDirectory)\SubModule.xml" "$(MNB2DIR)\Modules\zenDzeeMods_CompleteAllMainQuests"</PostBuildEvent>
+    <PostBuildEvent>xcopy /d /y "$(MSBuildProjectDirectory)\SubModule.xml" "..\..\"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -108,10 +108,23 @@ namespace zenDzeeMods_CompleteAllMainQuests
 
         private void MakeKingdom()
         {
-            object objectManager = Game.Current.ObjectManager;
+            Game game = Game.Current;
+            Type gameType = game.GetType();
+            if (gameType == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: gameType is null"));
+                return;
+            }
+            MethodInfo getObjectManagerMethod = gameType.GetMethod("get_ObjectManager", new Type[] { });
+            if (getObjectManagerMethod == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: getObjectManagerMethod is null"));
+                return;
+            }
+            object objectManager = getObjectManagerMethod.Invoke(game, new object[] { });
             if (objectManager == null)
             {
-                InformationManager.DisplayMessage(new InformationMessage("ERROR: MBObjectManager is null"));
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: objectManager is null"));
                 return;
             }
             Type objectManagerType = objectManager.GetType();
