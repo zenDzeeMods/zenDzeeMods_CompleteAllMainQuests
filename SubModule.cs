@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -10,6 +12,8 @@ namespace zenDzeeMods_CompleteAllMainQuests
 {
     public class SubModule : MBSubModuleBase
     {
+        private ICollection<CampaignBehaviorBase> CampaignBehaviors;
+
         protected override void OnGameStart(Game game, IGameStarter gameStarter)
         {
             if (game.GameType is Campaign)
@@ -17,9 +21,31 @@ namespace zenDzeeMods_CompleteAllMainQuests
                 CampaignGameStarter campaignStarter = (CampaignGameStarter)gameStarter;
                 campaignStarter.AddBehavior(new CompleteMainQuestsCampaignBehavior());
                 campaignStarter.AddBehavior(new KingdomMakerCampaignBehavior());
+
+                this.CampaignBehaviors = campaignStarter.CampaignBehaviors;
+            }
+        }
+
+        public override void OnGameInitializationFinished(Game game)
+        {
+            if (game.GameType is Campaign)
+            {
+                List<Type> stopBehaviors = new List<Type> {
+                    typeof(StoryMode.Behaviors.SecondPhaseCampaignBehavior),
+                    typeof(StoryMode.Behaviors.ThirdPhaseCampaignBehavior),
+                };
+                // TODO automate finding Behaviors
+                foreach (CampaignBehaviorBase cb in CampaignBehaviors)
+                {
+                    if (stopBehaviors.Contains(cb.GetType()))
+                    {
+                        CampaignEvents.RemoveListeners(cb);
+                    }
+                }
             }
         }
     }
+
 
     internal class CompleteMainQuestsCampaignBehavior : CampaignBehaviorBase
     {
@@ -51,7 +77,6 @@ namespace zenDzeeMods_CompleteAllMainQuests
                     {
                         if (q != null && q.IsSpecialQuest)
                         {
-                            InformationManager.DisplayMessage(new InformationMessage("Cancelling " + q.ToString()));
                             q.CompleteQuestWithCancel();
 
                             attemptToFindSpecialQuests = 0;
@@ -62,6 +87,17 @@ namespace zenDzeeMods_CompleteAllMainQuests
 
                 if (attemptToFindSpecialQuests == maxAttempts1)
                 {
+                    if (StoryMode.StoryMode.Current != null
+                        && StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase != null
+                        && StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.OppositionKingdoms != null)
+                    {
+                        Kingdom kingdom;
+                        while((kingdom = StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.OppositionKingdoms.FirstOrDefault()) != null)
+                        {
+                            StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.RemoveOppositionKingdom(kingdom);
+                        }
+                    }
+
                     CampaignEvents.RemoveListeners(this);
                 }
             }
@@ -152,7 +188,7 @@ namespace zenDzeeMods_CompleteAllMainQuests
             kingdomName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
             kingdom.InitializeKingdom(kingdomName, informalName, Clan.PlayerClan.Culture, Clan.PlayerClan.Banner, Clan.PlayerClan.Color, Clan.PlayerClan.Color2, Clan.PlayerClan.InitialPosition);
 
-            foreach(Kingdom k in Kingdom.All)
+            foreach (Kingdom k in Kingdom.All)
             {
                 if (k != null && k != kingdom && Clan.PlayerClan.IsAtWarWith(k))
                 {
