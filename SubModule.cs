@@ -169,13 +169,23 @@ namespace zenDzeeMods_CompleteAllMainQuests
                 InformationManager.DisplayMessage(new InformationMessage("ERROR: objectManagerType is null"));
                 return;
             }
-            MethodInfo createObjectMethod = objectManagerType.GetMethod("CreateObject", new Type[2] { typeof(Type), typeof(string) });
+
+            MethodInfo createObjectMethod = objectManagerType.GetMethods()
+                .FirstOrDefault(m =>
+                    m.Name == "CreateObject"
+                    && m.IsGenericMethod
+                    && m.GetGenericArguments().Length == 1
+                    && m.GetParameters().Length == 1
+                    && m.GetParameters()[0].ParameterType == typeof(string));
             if (createObjectMethod == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("ERROR: createObjectMethod is null"));
                 return;
             }
-            Kingdom kingdom = (Kingdom)createObjectMethod.Invoke(objectManager, new object[2] { typeof(Kingdom), "playerland_kingdom" });
+
+            MethodInfo genericCreateObjectMethod = createObjectMethod.MakeGenericMethod(typeof(Kingdom));
+
+            Kingdom kingdom = genericCreateObjectMethod.Invoke(objectManager, new object[1] { "playerland_kingdom" }) as Kingdom;
             if (kingdom == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("ERROR: Object kingdom is null"));
