@@ -92,7 +92,7 @@ namespace zenDzeeMods_CompleteAllMainQuests
                         && StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.OppositionKingdoms != null)
                     {
                         Kingdom kingdom;
-                        while((kingdom = StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.OppositionKingdoms.FirstOrDefault()) != null)
+                        while ((kingdom = StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.OppositionKingdoms.FirstOrDefault()) != null)
                         {
                             StoryMode.StoryMode.Current.MainStoryLine.ThirdPhase.RemoveOppositionKingdom(kingdom);
                         }
@@ -109,17 +109,18 @@ namespace zenDzeeMods_CompleteAllMainQuests
         public override void RegisterEvents()
         {
             CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, SettlementOwnerChangedAction);
-            CampaignEvents.OnSettlementLeftEvent.AddNonSerializedListener(this, SettlementLeftAction);
+            CampaignEvents.SettlementEntered.AddNonSerializedListener(this, SettlementEnteredAction);
         }
 
         public override void SyncData(IDataStore dataStore)
         {
         }
 
-        private void SettlementLeftAction(MobileParty party, Settlement settlement)
+        private void SettlementEnteredAction(MobileParty party, Settlement settlement, Hero hero)
         {
             Clan clan = Clan.PlayerClan;
-            if (Hero.MainHero == party.LeaderHero && clan != null && clan == settlement.OwnerClan && settlement.IsFortification)
+            if (party != null && settlement != null && Hero.MainHero == party.LeaderHero
+                && clan != null && clan == settlement.OwnerClan && settlement.IsFortification)
             {
                 if ((clan.Kingdom == null) &&
                     (StoryMode.StoryMode.Current.MainStoryLine.TutorialPhase.IsCompleted || StoryMode.StoryMode.Current.MainStoryLine.TutorialPhase.IsSkipped))
@@ -185,7 +186,7 @@ namespace zenDzeeMods_CompleteAllMainQuests
 
             MethodInfo genericCreateObjectMethod = createObjectMethod.MakeGenericMethod(typeof(Kingdom));
 
-            Kingdom kingdom = genericCreateObjectMethod.Invoke(objectManager, new object[1] { "playerland_kingdom" }) as Kingdom;
+            Kingdom kingdom = genericCreateObjectMethod.Invoke(objectManager, new object[1] { "dynamic_kingdom_" + CampaignTime.Now.ElapsedSecondsUntilNow }) as Kingdom;
             if (kingdom == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("ERROR: Object kingdom is null"));
@@ -193,9 +194,9 @@ namespace zenDzeeMods_CompleteAllMainQuests
             }
 
             TextObject informalName = new TextObject("{CLAN_NAME}", null);
-            informalName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
+            SetTextVariable(informalName, "CLAN_NAME", Clan.PlayerClan.Name);
             TextObject kingdomName = new TextObject("Kingdom of the {CLAN_NAME}", null);
-            kingdomName.SetTextVariable("CLAN_NAME", Clan.PlayerClan.Name);
+            SetTextVariable(kingdomName, "CLAN_NAME", Clan.PlayerClan.Name);
             kingdom.InitializeKingdom(kingdomName, informalName, Clan.PlayerClan.Culture, Clan.PlayerClan.Banner, Clan.PlayerClan.Color, Clan.PlayerClan.Color2, Clan.PlayerClan.InitialPosition);
 
             foreach (Kingdom k in Kingdom.All)
@@ -208,6 +209,28 @@ namespace zenDzeeMods_CompleteAllMainQuests
 
             ChangeKingdomAction.ApplyByJoinToKingdom(Clan.PlayerClan, kingdom, true);
             kingdom.RulingClan = Clan.PlayerClan;
+        }
+
+        private void SetTextVariable(TextObject text, string tag, TextObject variable)
+        {
+            SetTextVariable_internal<TextObject>(text, tag, variable);
+        }
+
+        private void SetTextVariable_internal<T>(TextObject text, string tag, object variable)
+        {
+            Type textType = text.GetType();
+            if (textType == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: textType is null"));
+                return;
+            }
+            MethodInfo setTextVariableMethod = textType.GetMethod("SetTextVariable", new Type[] { typeof(string), typeof(T) });
+            if (setTextVariableMethod == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("ERROR: setTextVariableMethod is null"));
+                return;
+            }
+            setTextVariableMethod.Invoke(text, new object[] { tag, variable });
         }
     }
 }
